@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
 
-import org.bukkit.World;
+import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
@@ -15,6 +15,8 @@ import com.SkyIsland.EnderDragonFridays.Boss.Component.TargetType;
 
 public class MegaDragon extends Dragon {
 	
+	private String name;
+	
 	/**
 	 * Creates a default mega dragon
 	 * @param plugin The EnderDragonFridays plugin this dragon is associated with
@@ -22,9 +24,7 @@ public class MegaDragon extends Dragon {
 	 * @param loc
 	 * @param name it's name
 	 */
-	public MegaDragon(World world, int level, String name) {
-		
-		this.chestAreaBL = world.getSpawnLocation();
+	public MegaDragon(int level, String name) {
 		
 		this.damageTaken = 0;
 		
@@ -33,9 +33,18 @@ public class MegaDragon extends Dragon {
 			level = 1;
 		}
 		this.level = level;
+		this.name = name;
+
+		//Initialize the map of damage each player does to the dragon
+		damageMap = new HashMap<UUID, Double>();
+
+	}
+	
+	@Override
+	public void start(Location startingLocation) {
 
 		//Spawn an ender dragon
-		dragon = (LivingEntity) world.spawnEntity(world.getSpawnLocation().add(0, 50, 0), EntityType.ENDER_DRAGON);
+		dragon = (LivingEntity) startingLocation.getWorld().spawnEntity(startingLocation, EntityType.ENDER_DRAGON);
 		
 		//Set the dragon's name
 		if (name != null && name.length() > 0) {
@@ -46,9 +55,6 @@ public class MegaDragon extends Dragon {
 		//Set the dragon's health
 		dragon.setMaxHealth(dragon.getMaxHealth() * (2 + (Math.log(level)/Math.log(2))));
 		dragon.setHealth(dragon.getMaxHealth());
-
-		//Initialize the map of damage each player does to the dragon
-		damageMap = new HashMap<UUID, Double>();
 		
 		//calculate base-times
 		Double baseTime = (1 + (Math.log(level)/Math.log(2)));

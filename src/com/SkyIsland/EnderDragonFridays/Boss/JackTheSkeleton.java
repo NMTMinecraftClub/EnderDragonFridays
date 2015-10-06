@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
-import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -26,7 +22,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -34,9 +29,6 @@ import org.bukkit.potion.PotionEffectType;
 import com.SkyIsland.EnderDragonFridays.EnderDragonFridaysPlugin;
 import com.SkyIsland.EnderDragonFridays.Boss.Cannon.BlindnessVeil;
 import com.SkyIsland.EnderDragonFridays.Boss.Cannon.Events.BlindnessVeilEvent;
-import com.SkyIsland.EnderDragonFridays.Items.ChestContentGenerator;
-import com.griefcraft.model.Protection;
-import com.griefcraft.sql.PhysDB;
 
 public class JackTheSkeleton implements Listener, Boss {
 
@@ -44,8 +36,8 @@ public class JackTheSkeleton implements Listener, Boss {
 	private LivingEntity dragon;				//The actual Entity for the Ender Boss
 	private Map<UUID, Double> damageMap;		//The damage each player has done to the ender dragon
 	private double damageTaken;
-	private Location chestAreaBL;
 	private org.bukkit.entity.EnderDragon healthbar;
+	private String name;
 	
 	/**
 	 * Creates a default enderdragon
@@ -54,10 +46,8 @@ public class JackTheSkeleton implements Listener, Boss {
 	 * @param loc
 	 * @param name it's name
 	 */
-	public JackTheSkeleton(World world, int level, String name) {
-		
-		this.chestAreaBL = world.getSpawnLocation();
-		
+	public JackTheSkeleton(int level, String name) {
+
 		this.damageTaken = 0;
 		
 		//Ensure level is a positive integer
@@ -65,9 +55,17 @@ public class JackTheSkeleton implements Listener, Boss {
 			level = 1;
 		}
 		this.level = level;
+		this.name = name;
+
+		//Initialize the map of damage each player does to the dragon
+		damageMap = new HashMap<UUID, Double>();
+	}
+	
+	@Override
+	public void start(Location startingLocation) {
 
 		//Spawn an ender dragon
-		dragon = (LivingEntity) world.spawnEntity(world.getSpawnLocation(), EntityType.SKELETON);
+		dragon = (LivingEntity) startingLocation.getWorld().spawnEntity(startingLocation, EntityType.SKELETON);
 		((Skeleton) dragon).setSkeletonType(SkeletonType.WITHER);
 		dragon.setRemoveWhenFarAway(false);
 		
@@ -86,7 +84,7 @@ public class JackTheSkeleton implements Listener, Boss {
 			dragon.setCustomName(name + " (Lvl " + level + ")");
 			dragon.setCustomNameVisible(true);
 		}
-		this.healthbar = (org.bukkit.entity.EnderDragon) world.spawnEntity(world.getSpawnLocation().add(0, -40000, 0), EntityType.ENDER_DRAGON);
+		this.healthbar = (org.bukkit.entity.EnderDragon) startingLocation.getWorld().spawnEntity(startingLocation.add(0, -40000, 0), EntityType.ENDER_DRAGON);
 		
 		//Set the dragon's health
 		dragon.setMaxHealth(healthbar.getMaxHealth() * (2 + (Math.log(level)/Math.log(2))));
@@ -95,9 +93,6 @@ public class JackTheSkeleton implements Listener, Boss {
 		healthbar.setMaxHealth(dragon.getMaxHealth());
 		healthbar.setHealth(dragon.getMaxHealth());
 		healthbar.setCustomName(dragon.getCustomName());
-
-		//Initialize the map of damage each player does to the dragon
-		damageMap = new HashMap<UUID, Double>();
 		
 		//Start firing the dragon's fireballs
 		//Bukkit.getScheduler().scheduleSyncRepeatingTask(EnderDragonFridaysPlugin.plugin, new FireballCannon(this, 500, 2000), 20, (long) (20 / (1 + (Math.log(level)/Math.log(2)))));
@@ -105,12 +100,10 @@ public class JackTheSkeleton implements Listener, Boss {
 		
 		new BlindnessVeil(this, 20, 30);
 		//least delay is what it was before. Max is the same + 5 ticks
-		
+
 		EnderDragonFridaysPlugin.plugin.getServer().getPluginManager().registerEvents(this, EnderDragonFridaysPlugin.plugin);
 
 	}
-	
-	
 	public boolean isLiving() {
 		if (dragon == null) {
 			return false;
@@ -198,6 +191,7 @@ public class JackTheSkeleton implements Listener, Boss {
 		//if the dragon has died
 		if (event.getEntity().equals(dragon)) {
 			win();
+			Bukkit.getPluginManager().callEvent(new BossDeathEvent(this));
 		}
 	}
 	
@@ -207,88 +201,10 @@ public class JackTheSkeleton implements Listener, Boss {
 	 */
 	public void win() {
 		kill();
-		Location loc = dragon.getLocation();
-		World world = dragon.getWorld();
 		Random rand = new Random();
-		for (int i = 0; i < 3000; i++) {
-			world.spawnEntity(loc.add(rand.nextFloat() * 10, 0, rand.nextFloat()), EntityType.EXPERIENCE_ORB);
-		}
-		Map<UUID, Inventory> rewardMap = ChestContentGenerator.generate(7 + (this.level / 5), this.damageMap);
-		spawnRewards(rewardMap);
-		congradulatePlayers(this.damageMap);
-	}
-	
-	public void spawnRewards(Map<UUID, Inventory> map) {
-		//spawn chests at random in 10x10 area with bottom left block at location chestAreaBL
-		
-		//first make sure map isn't empty. If it is... something went wrong, but we're just 
-		//going to ignore it for now
-		if (map.isEmpty()) {
-			EnderDragonFridaysPlugin.plugin.getLogger().info("Map of contributions was empty!\nSpawning no rewards...");
-			return;
-		}
-		System.out.println("Called \"Spawn Rewards\" ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-		//We just put chests in a linear fashion. We do cap x to 10. <b>this is a magic number</b>
-		int index = 0;
-		double x, y;
-		for (Entry<UUID, Inventory> entry : map.entrySet()) {
-			x = (index % 11);
-			y = (int) Math.floor(index / 11);
-			Player player = Bukkit.getPlayer(entry.getKey());
-			
-			Block block = chestAreaBL.getBlock().getLocation().add(x,0,y).getBlock();
-			block.setType(Material.CHEST);
-			Chest chest = (Chest) block.getState();
-			chest.getInventory().setContents(entry.getValue().getContents()); //bummer I thought we would be able to just hand it the inv
-			doExtras(chest, player);
-			index += 2;
-			System.out.println("Index now equals : " + index);
-			
-			EnderDragonFridaysPlugin.plugin.getLogger().info("Created a chest for player " + player.getDisplayName() + " at " + chest.getLocation().toString());
-
-			
-		}
-	}
-	
-	@SuppressWarnings("deprecation")
-	public void doExtras(Chest chest, Player player) {
-		//for EDF's, we want to lock the chest and put a sign above it telling who's it is
-		//Protection protection;
-		PhysDB physDb = EnderDragonFridaysPlugin.lwcPlugin.getLWC().getPhysicalDatabase();
-		
-		String worldName = chestAreaBL.getWorld().getName();
-		/*protection = */
-		physDb.registerProtection(chest.getTypeId(), Protection.Type.PRIVATE, worldName, player.getName(), "", chest.getX(), chest.getY(), chest.getZ());
-		
-		EnderDragonFridaysPlugin.plugin.getLogger().info("success?");
-
-		//Now create a sign above it
-		Block block = chest.getLocation().add(0,1,0).getBlock();
-		block.setType(Material.SIGN_POST);
-		Sign sign = (Sign) block.getState();
-		sign.setLine(1, player.getName());
-		sign.update();
-		//register the sign
-		physDb.registerProtection(sign.getTypeId(), Protection.Type.PRIVATE, worldName, player.getName(), "", sign.getX(), sign.getY(), sign.getZ());
-		
-	}
-	
-	/**
-	 * Print out custom message to player letting them know how they did
-	 * @param map
-	 */
-	public void congradulatePlayers(Map<UUID, Double> map) {
-		for (Entry<UUID, Double> entry : map.entrySet()) {
-			
-			Player player = Bukkit.getPlayer(entry.getKey());
-			try{
-				player.sendMessage("Nice Fight!\n  "
-					+ "You did " + (entry.getValue().intValue()) + " points of damage!\n"
-							+ "Your contribution was " + ((entry.getValue() / damageTaken) * 100) + "%!");
-			}
-			catch (Exception e){
-				//Player wasn't online anymore
-			}
+		for (int i = 0; i < 300; i++) {
+			dragon.getLocation().getWorld()
+			.spawnEntity(dragon.getLocation().add(rand.nextFloat() * 10, 0, rand.nextFloat()), EntityType.EXPERIENCE_ORB);
 		}
 	}
 	
@@ -334,4 +250,21 @@ public class JackTheSkeleton implements Listener, Boss {
 	public List<UUID> getDamageList() {
 		return new ArrayList<UUID>(damageMap.keySet());
 	}
+	
+	@Override
+	public Map<UUID, Double> getDamageMap() {
+		return damageMap;
+	}
+	
+	@Override
+	public double getDamageTaken() {
+		return damageTaken;
+	}
+
+	@Override
+	public boolean equals(Boss boss) {
+		return dragon.getUniqueId().equals(boss.getEntity().getUniqueId());
+	}
+	
+	
 }

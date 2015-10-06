@@ -10,6 +10,7 @@ permissions:
             enderdragonfridays.killalldragons: true
             enderdragonfridays.windragonwars: true
             enderdragonfridays.setcontribution: true
+            enderdragonfridays.stopdragonfight: true
         default: op
     enderdragonfridays.startdragonfight:
         default: op
@@ -21,27 +22,19 @@ permissions:
         default: op
     enderdragonfridays.setcontribution:
         default: op
+    enderdragonfridays.stopdragonfight:
+        deafult: op
 commands:
-    startdragonfight:
-        description: Creates a dragon fight
-        usage: /startdragonfight
-        permission: enderdragonfridays.startdragonfight
-    killdragon:
-        description: kills a dragon!
-        usage: /killdragon
-        permission: enderdragonfridays.killdragon
     killalldragons:
         description: Kills all ender dragons in the world
         usage: /killalldragons
         permission: enderdragonfridays.killalldragons
     enderdragonfridays:
         permission: enderdragonfridays.*
-        usage: /edf [reload / start [mega / halloween / thanksgiving]]
+        usage: /edf [create|reload|start|stop|remove|info|list]
         description: Executes a command for ender dragon fridays plugin
         aliases: edf
-    windragonwars:
-        permission: enderdragonfridays.windragonwars
-        usage: /windragonwars
     setcontribution:
         permission: enderdragonfridays.setcontribution
         usage: /setcontribution contribution
+    

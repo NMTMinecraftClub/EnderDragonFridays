@@ -1,5 +1,8 @@
 package com.SkyIsland.EnderDragonFridays.Items;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +12,8 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -18,8 +23,10 @@ import org.bukkit.material.SpawnEgg;
 
 import com.SkyIsland.EnderDragonFridays.EnderDragonFridaysPlugin;
 import com.SkyIsland.EnderDragonFridays.Name.ArmorNameGenerator;
+import com.SkyIsland.EnderDragonFridays.Name.BowNameGenerator;
 import com.SkyIsland.EnderDragonFridays.Name.ItemNameGenerator;
 import com.SkyIsland.EnderDragonFridays.Name.NameGenerator;
+import com.SkyIsland.EnderDragonFridays.Name.SwordNameGenerator;
 
 /**
  * Generates a chest-ful of equipment for players!<br />
@@ -34,14 +41,25 @@ public class ChestContentGenerator {
 	
 	private static LootGenerator gen;
 	
+
+	private static YamlConfiguration backup;
+	private static final File backupFile = new File(EnderDragonFridaysPlugin.plugin.getDataFolder(), "backup.yml");
+	
+	
 	public static Map<UUID, Inventory> generate(double rarity, Map<UUID, Double> inputMap) {
+		
+
+		backup = new YamlConfiguration();
+		setupBackup();
 		
 		//First, create our generator
 		//get some name generators
-		NameGenerator tools, armor;
+		NameGenerator tools, armor, sword, bow;
 		tools = new ItemNameGenerator();
 		armor = new ArmorNameGenerator(); 
-		gen = new LootGenerator(rarity, null, armor, tools);
+		sword = new SwordNameGenerator();
+		bow = new BowNameGenerator();
+		gen = new LootGenerator(rarity, sword, bow, armor, tools);
 		
 		//Next, we set up our new map that will connect players to their chests
 		Map<UUID, Inventory> output = new HashMap<UUID, Inventory>();
@@ -69,9 +87,19 @@ public class ChestContentGenerator {
 				
 				//Create a chest
 				chest = Bukkit.getServer().createInventory(null, 27);
+				
 				//we are going to populate it with two items
-				chest.addItem(gen.generateItem(  inputMap.get(uuid)  )); //generate item. Use the double passed with player as weight
-				chest.addItem(gen.generateItem(  inputMap.get(uuid)  ));
+				ItemStack item;
+				item = gen.generateItem(  inputMap.get(uuid)  );
+				
+				//record generated item incase of accidents
+				backup.set(Bukkit.getPlayer(uuid).getName() + uuid + ".item1", item);
+				chest.addItem(item); //generate item. Use the double passed with player as weight
+				
+				//do again
+				item = gen.generateItem(  inputMap.get(uuid)  );
+				backup.set(Bukkit.getPlayer(uuid).getName() + uuid + ".item2", item);
+				chest.addItem(item);
 				//chest.addItem(new ItemStack(Material.DIAMOND_AXE));
 				
 	
@@ -88,6 +116,8 @@ public class ChestContentGenerator {
 					
 					egg.setItemMeta(meta);
 					
+
+					backup.set(Bukkit.getPlayer(uuid).getName() + uuid + ".egg", item);
 					chest.addItem(egg);
 					EnderDragonFridaysPlugin.plugin.getLogger().info("Gave an egg to " + player.getDisplayName());
 				}
@@ -104,9 +134,50 @@ public class ChestContentGenerator {
 			
 		}
 		finally {
-			gen.saveBackup();
+			saveBackup();
 		}
 		
 		return output;
 	}
+	
+	
+	
+	private static void setupBackup() {
+		
+		if (backupFile.exists()) {
+			backupFile.delete();
+		}
+		try {
+			backupFile.createNewFile();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			backup.load(backupFile);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+
+	
+	public static void saveBackup() {
+		try {
+			backup.save(backupFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }
+
+

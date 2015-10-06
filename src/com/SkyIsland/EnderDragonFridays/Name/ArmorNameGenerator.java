@@ -63,6 +63,15 @@ public class ArmorNameGenerator implements NameGenerator {
 		firstNames.add("Sponge");
 		firstNames.add("Ordinary");
 		firstNames.add("Fabulous");
+		firstNames.add("New");
+		firstNames.add("Mythril");
+		firstNames.add("Special");
+		firstNames.add("My New");
+		firstNames.add("Probably Sucky");
+		firstNames.add("Frozen");
+		firstNames.add("Legendary");
+		firstNames.add("Almost Legendary");
+		firstNames.add("Pretty Awful");
 	}
 	
 	private void setupLast() {
@@ -87,6 +96,11 @@ public class ArmorNameGenerator implements NameGenerator {
 		lastNames.add("Ward");
 		lastNames.add("Bukkit");
 		lastNames.add("Rune");
+		lastNames.add("Armor");
+		lastNames.add("Bracelet");
+		lastNames.add("Underwear");
+		lastNames.add("Shell");
+		lastNames.add("Barrier");
 		
 	}
 
