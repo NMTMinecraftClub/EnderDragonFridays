@@ -86,7 +86,7 @@ public class Turkey implements Boss, Listener {
 		}
 		
 		if (name == null) {
-			//hardcoded default!
+			//hard-coded default!
 			name = "Kjilnor the Fierce";
 		}
 		

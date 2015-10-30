@@ -47,6 +47,9 @@ public class BowNameGenerator implements NameGenerator {
 		firstNames.add("Fantastic");
 		firstNames.add("Bow-tastic");
 		firstNames.add("Fletched");
+		firstNames.add("Flying");
+		firstNames.add("Arrow-shooting");
+		firstNames.add("PEW PEW");
 	}
 	
 	private void setupLast() {
@@ -58,7 +61,10 @@ public class BowNameGenerator implements NameGenerator {
 		lastNames.add("Aegis");
 		lastNames.add("Spitter");
 		lastNames.add("Nimbus");
-		
+		lastNames.add("Arrow Shooter");
+		lastNames.add("Pea-shooter");
+		lastNames.add("Pop-gun");
+		lastNames.add("PEW PEW!");
 	}
 
 }

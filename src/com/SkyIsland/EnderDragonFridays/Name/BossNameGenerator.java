@@ -89,6 +89,7 @@ public class BossNameGenerator implements NameGenerator {
 		lastNames.add("The Nimble");
 		lastNames.add("The Weak");
 		lastNames.add("The Pitiful");
+		lastNames.add("The Builder");
 		lastNames.add("Sorrowbreath");
 		lastNames.add("Deathfang");
 		lastNames.add("Ironsong");
