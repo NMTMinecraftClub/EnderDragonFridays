@@ -1,7 +1,5 @@
 package com.SkyIsland.EnderDragonFridays.Boss.Component;
 
-import org.bukkit.scheduler.BukkitRunnable;
-
 import com.SkyIsland.EnderDragonFridays.Boss.Boss;
 
 /**
@@ -13,7 +11,7 @@ import com.SkyIsland.EnderDragonFridays.Boss.Boss;
  * @author Skyler
  *
  */
-public abstract class BossComponent extends BukkitRunnable {
+public abstract class BossComponent implements Runnable {
 	
 	/**
 	 * The {@link com.SkyIsland.EnderDragonFridays.Boss.Boss Boss} this component is part of.

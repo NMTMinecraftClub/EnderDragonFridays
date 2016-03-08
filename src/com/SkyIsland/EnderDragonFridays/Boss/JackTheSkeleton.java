@@ -77,7 +77,7 @@ public class JackTheSkeleton implements Listener, Boss {
 		sword.addEnchantment(Enchantment.FIRE_ASPECT, 1);
 		sword.addUnsafeEnchantment(Enchantment.KNOCKBACK, 4);
 		sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 2);
-		dragon.getEquipment().setItemInHand(sword);
+		dragon.getEquipment().setItemInMainHand(sword);
 		
 		//Set the dragon's name
 		if (name != null && name.length() > 0) {
