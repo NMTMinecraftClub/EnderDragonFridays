@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.entity.Chicken;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
@@ -40,7 +39,7 @@ public class ChickenMinion implements Listener {
 		
 		public FallDetector(Chicken chicken) {
 			this.chicken = chicken;
-			System.out.println("Creating FAll Detector!");
+			System.out.println("Creating Fall Detector!");
 		}
 		
 		@Override
@@ -57,8 +56,8 @@ public class ChickenMinion implements Listener {
 	
 	}
 	
-	public ChickenMinion(Boss boss, Location loc) {
-		this.boss = boss;
+	public ChickenMinion(Boss _boss, Location loc) {
+		this.boss = _boss;
 		this.falling = true;
 		chicken = (Chicken) loc.getWorld().spawnEntity(loc, EntityType.CHICKEN);
 		chicken.setRemoveWhenFarAway(false);
