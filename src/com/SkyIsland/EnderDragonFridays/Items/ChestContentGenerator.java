@@ -24,8 +24,9 @@ import org.bukkit.material.SpawnEgg;
 import com.SkyIsland.EnderDragonFridays.EnderDragonFridaysPlugin;
 import com.SkyIsland.EnderDragonFridays.Name.ArmorNameGenerator;
 import com.SkyIsland.EnderDragonFridays.Name.BowNameGenerator;
-import com.SkyIsland.EnderDragonFridays.Name.ItemNameGenerator;
+import com.SkyIsland.EnderDragonFridays.Name.ToolNameGenerator;
 import com.SkyIsland.EnderDragonFridays.Name.NameGenerator;
+import com.SkyIsland.EnderDragonFridays.Name.ShieldNameGenerator;
 import com.SkyIsland.EnderDragonFridays.Name.SwordNameGenerator;
 
 /**
@@ -48,18 +49,19 @@ public class ChestContentGenerator {
 	
 	public static Map<UUID, Inventory> generate(double rarity, Map<UUID, Double> inputMap) {
 		
-
 		backup = new YamlConfiguration();
 		setupBackup();
 		
 		//First, create our generator
 		//get some name generators
-		NameGenerator tools, armor, sword, bow;
-		tools = new ItemNameGenerator();
-		armor = new ArmorNameGenerator(); 
+		NameGenerator sword, bow, armor, shield, tools;
 		sword = new SwordNameGenerator();
 		bow = new BowNameGenerator();
-		gen = new LootGenerator(rarity, sword, bow, armor, tools);
+		armor = new ArmorNameGenerator();
+		shield = new ShieldNameGenerator(); 
+		tools = new ToolNameGenerator();
+		
+		gen = new LootGenerator(rarity, sword, bow, armor, shield, tools);
 		
 		//Next, we set up our new map that will connect players to their chests
 		Map<UUID, Inventory> output = new HashMap<UUID, Inventory>();
@@ -90,14 +92,14 @@ public class ChestContentGenerator {
 				
 				//we are going to populate it with two items
 				ItemStack item;
-				item = gen.generateItem(  inputMap.get(uuid)  );
+				item = gen.generateItem(inputMap.get(uuid));
 				
 				//record generated item in case of accidents
 				backup.set(Bukkit.getPlayer(uuid).getName() + uuid + ".item1", item);
 				chest.addItem(item); //generate item. Use the double passed with player as weight
 				
 				//do again
-				item = gen.generateItem(  inputMap.get(uuid)  );
+				item = gen.generateItem(inputMap.get(uuid));
 				backup.set(Bukkit.getPlayer(uuid).getName() + uuid + ".item2", item);
 				chest.addItem(item);
 				//chest.addItem(new ItemStack(Material.DIAMOND_AXE));
@@ -140,6 +142,60 @@ public class ChestContentGenerator {
 		return output;
 	}
 	
+	public static Inventory generateTest(double rarity, double contrib, Player player) {
+		
+		Random rand = new Random();
+		
+		//First, create our generator
+		//get some name generators
+		NameGenerator sword, bow, armor, shield, tools;
+		sword = new SwordNameGenerator();
+		bow = new BowNameGenerator();
+		armor = new ArmorNameGenerator();
+		shield = new ShieldNameGenerator(); 
+		tools = new ToolNameGenerator();
+		
+		gen = new LootGenerator(rarity, sword, bow, armor, shield, tools);
+		
+		//Next, we set up our new map that will connect players to their chests
+		Inventory chest;
+		
+		//Create a chest
+		chest = Bukkit.getServer().createInventory(null, 27);
+		
+		//we are going to populate it with two items
+		ItemStack item;
+		item = gen.generateItem(contrib);
+		chest.addItem(item);
+		
+		//do again
+		item = gen.generateItem(contrib);
+		chest.addItem(item);
+		
+
+		//check if they got a dragon egg
+		if (rand.nextInt(3) == 3) {
+			ItemStack egg = new SpawnEgg(EntityType.ENDER_DRAGON).toItemStack(1);
+			ItemMeta meta = egg.getItemMeta();
+			
+			meta.setDisplayName("Easter Egg: " + "Boss Egg");
+			
+			List<String> lore = new LinkedList<String>();
+			lore.add(ChatColor.BLACK + "The Egg of an Ender Boss");
+			meta.setLore(lore);
+			
+			egg.setItemMeta(meta);
+			
+
+			chest.addItem(egg);
+			EnderDragonFridaysPlugin.plugin.getLogger().info("Gave an egg to " + player.getDisplayName());
+		}
+		
+		EnderDragonFridaysPlugin.plugin.getLogger().info("Finished generating items for: " + player.getDisplayName());
+		
+		return chest;
+	}
+
 	
 	
 	private static void setupBackup() {

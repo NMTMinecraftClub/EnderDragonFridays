@@ -4,8 +4,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.block.Chest;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -13,13 +18,15 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.SkyIsland.EnderDragonFridays.Boss.Boss;
-import com.SkyIsland.EnderDragonFridays.Boss.EnderDragon;
-import com.SkyIsland.EnderDragonFridays.Boss.JackTheSkeleton;
-import com.SkyIsland.EnderDragonFridays.Boss.MegaDragon;
-import com.SkyIsland.EnderDragonFridays.Boss.Turkey;
+import com.SkyIsland.EnderDragonFridays.Boss.EnderDragonBoss;
+import com.SkyIsland.EnderDragonFridays.Boss.SkeletonBoss;
+import com.SkyIsland.EnderDragonFridays.Boss.MegaDragonBoss;
+import com.SkyIsland.EnderDragonFridays.Boss.TurkeyBoss;
+import com.SkyIsland.EnderDragonFridays.Items.ChestContentGenerator;
 import com.SkyIsland.EnderDragonFridays.Name.BossNameGenerator;
 
 /**
@@ -37,14 +44,14 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 	
 	public static final String savePrefix = "FightSave_";
 	
-	private Set<DragonFight> fights;
+	private Set<BossFight> fights;
 	
 	public void onLoad() {
 		EnderDragonFridaysPlugin.plugin = this;
 	}
 	
 	public void onEnable() {
-		fights = new HashSet<DragonFight>();
+		fights = new HashSet<BossFight>();
 		bossName = new BossNameGenerator();
 		
 		rand = new Random();
@@ -52,7 +59,7 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 	
 	public void onDisable() {
 		if (!fights.isEmpty()) {
-			Iterator<DragonFight> it = fights.iterator();
+			Iterator<BossFight> it = fights.iterator();
 			while (it.hasNext()) {
 				it.next().stop(false);
 				it.remove();
@@ -75,6 +82,15 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 					dragon.remove();
 				}
 			}
+			return true;
+		}
+		
+		if (cmd.getName().equalsIgnoreCase("gentestloot")) {
+			if ((Player) sender == null)
+			{
+				return false;
+			}
+			spawnTestRewards((Player)sender);
 			return true;
 		}
 		
@@ -122,6 +138,71 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 		return false;
 	}
 	
+	private void spawnTestRewards(Player player) {
+		
+		Random rand = new Random();
+		Location chestLocation = player.getEyeLocation();
+		double difficultyBase = rand.nextInt(1) + 1;
+		double difficulty = rand.nextInt(30);
+		EnderDragonFridaysPlugin.plugin.getLogger().info("Spawning test rewards. DifficultyBase=" + difficultyBase + ", Difficulty=" + difficulty + ".");
+		
+		//spawn the loot chest, and create inventories for every player
+		Inventory inventory = ChestContentGenerator.generateTest(difficultyBase + (difficulty / 5), rand.nextDouble(), player);
+		
+		//do fancy stuff
+		chestLocation.getWorld().spawnEntity(chestLocation, EntityType.LIGHTNING);
+	
+		//Create our loot chest
+		chestLocation.getBlock().setType(Material.CHEST);
+		((Chest) chestLocation.getBlock().getState()).getBlockInventory().setContents(inventory.getContents());
+		
+		String name;
+		UUID id = player.getUniqueId();
+		name = Bukkit.getOfflinePlayer(id).getName();
+		if (name == null || name.trim().isEmpty()) {
+			name = id.toString();
+		}
+		
+		//save our inventories! #backups
+		/* YamlConfiguration backupConfig = new YamlConfiguration();
+		ConfigurationSection playSex, invSex;
+		playSex = backupConfig.createSection(name);
+		playSex.set("uuid", id.toString());
+		invSex = playSex.createSection("inventory");
+		Iterator<ItemStack> it = inventory.iterator();
+		int index = 0;
+		while (it.hasNext()) {
+			invSex.set(index + "", it.next());
+			index++;
+		}
+		File saveFile = new File(EnderDragonFridaysPlugin.plugin.getDataFolder(), 
+				"Save" + getName() + "_" + getID() + ".yml");
+		if (!saveFile.exists()) {
+			try {
+				saveFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		try {
+			backupConfig.save(saveFile);
+		} catch (IOException e) {
+			System.out.println("Failed to save file!");
+			e.printStackTrace();
+		} */
+		
+		//tell players it's there
+		for (Player p : chestLocation.getWorld().getPlayers()) {
+			p.sendMessage("The loot chest has been generated at (" 
+		+ chestLocation.getBlockX() + ", "
+		+ chestLocation.getBlockY() + ", "
+		+ chestLocation.getBlockZ() + ")");
+		}
+		
+	}
+	
 	private void commandCreate(CommandSender sender, String[] args) {
 		if (args.length < 3 || args.length > 4) {
 			sender.sendMessage("/edf create " + ChatColor.DARK_PURPLE + "[sessionName]" + ChatColor.RESET + " [type] {basedifficulty}");
@@ -148,14 +229,14 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 		
 		Boss boss;
 		if (args[2].equals("mega")) {
-			boss = new MegaDragon(playerCount, bossName.getName());
+			boss = new MegaDragonBoss(playerCount, bossName.getName());
 		} else if (args[2].equals("halloween")) {
-			boss = new JackTheSkeleton(playerCount, bossName.getName());
+			boss = new SkeletonBoss(playerCount, bossName.getName());
 		} else if (args[2].equals("thanksgiving")) {
-			boss = new Turkey(playerCount, bossName.getName());
+			boss = new TurkeyBoss(playerCount, bossName.getName());
 		} else {
 			//just do default dragon
-			boss = new EnderDragon(playerCount, bossName.getName());
+			boss = new EnderDragonBoss(playerCount, bossName.getName());
 		}
 		
 		int base;
@@ -171,7 +252,7 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 			base = 5;
 		}
 		
-		DragonFight fight = new DragonFight(args[1],
+		BossFight fight = new BossFight(args[1],
 				player.getWorld(),
 				boss, 
 				playerCount,
@@ -190,7 +271,7 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 			return;
 		}
 		
-		DragonFight fight = getFight(args[1]);
+		BossFight fight = getFight(args[1]);
 		
 		if (fight == null) {
 			sender.sendMessage(ChatColor.DARK_RED + "Unable to find fight " + ChatColor.DARK_PURPLE + args[1] + ChatColor.RESET);
@@ -213,7 +294,7 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 			return;
 		}
 		
-		DragonFight fight = getFight(args[1]);
+		BossFight fight = getFight(args[1]);
 		
 		if (fight == null) {
 			sender.sendMessage(ChatColor.DARK_RED + "Unable to find fight " + ChatColor.DARK_PURPLE + args[1] + ChatColor.RESET);
@@ -233,7 +314,7 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 			}
 		}
 		
-		if (fight.getState() != DragonFight.State.FINISHED) {
+		if (fight.getState() != BossFight.State.FINISHED) {
 			sender.sendMessage(ChatColor.DARK_RED + "The session's already stopped!" + ChatColor.RESET);
 		}
 		
@@ -250,14 +331,14 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 			return;
 		}
 		
-		DragonFight fight = getFight(args[1]);
+		BossFight fight = getFight(args[1]);
 		
 		if (fight == null) {
 			sender.sendMessage(ChatColor.DARK_RED + "Unable to find fight " + ChatColor.DARK_PURPLE + args[1] + ChatColor.RESET);
 			return;
 		}
 		
-		if (fight.getState() == DragonFight.State.DURING) {
+		if (fight.getState() == BossFight.State.DURING) {
 			sender.sendMessage(ChatColor.DARK_RED + "The fight " + ChatColor.DARK_PURPLE + fight.getName() 
 			+ ChatColor.DARK_RED + " must be stopped first!" + ChatColor.RESET);
 			return;
@@ -280,7 +361,7 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 			return;
 		}
 		
-		DragonFight fight = getFight(args[1]);
+		BossFight fight = getFight(args[1]);
 		if (fight == null) {
 			sender.sendMessage(ChatColor.DARK_RED + "Unable to find fight " + ChatColor.DARK_PURPLE + args[1] + ChatColor.RESET);
 			return;
@@ -313,7 +394,7 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 		}
 		
 		sender.sendMessage("There are currently " + ChatColor.GREEN + fights.size() + ChatColor.RESET + " fights:");
-		for (DragonFight fight : fights) {
+		for (BossFight fight : fights) {
 			sender.sendMessage(ChatColor.DARK_PURPLE + fight.getName() + ChatColor.YELLOW + " [" + fight.getID() + "] " 
 					+ ChatColor.BLUE + fight.getState().toString() + ChatColor.RESET);
 		}
@@ -322,11 +403,11 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 	
 	/**
 	 * Tries to look up a fight by it's sessionName
-	 * @param sessionNAme
+	 * @param sessionName
 	 * @return The fight, if we have record of it. Null otherwise
 	 */
-	private DragonFight getFight(String sessionName) {
-		for (DragonFight fight : fights) {
+	private BossFight getFight(String sessionName) {
+		for (BossFight fight : fights) {
 			if (fight.getName().equals(sessionName)) {
 				return fight;
 			}

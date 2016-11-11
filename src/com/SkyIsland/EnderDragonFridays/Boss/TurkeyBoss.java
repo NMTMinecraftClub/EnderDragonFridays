@@ -1,5 +1,6 @@
 package com.SkyIsland.EnderDragonFridays.Boss;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,10 +9,8 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
@@ -30,7 +29,7 @@ import com.SkyIsland.EnderDragonFridays.EnderDragonFridaysPlugin;
 import com.SkyIsland.EnderDragonFridays.Boss.Component.ChickenMinion;
 import com.SkyIsland.EnderDragonFridays.Boss.Component.ChickenRegroupEvent;
 
-public class Turkey implements Boss, Listener {
+public class TurkeyBoss implements Boss, Listener {
 	
 	/**
 	 * A concrete list of all the living entities involved with this boss
@@ -48,43 +47,19 @@ public class Turkey implements Boss, Listener {
 	 */
 	private int maxHealth;
 	private int health;
-	
-	private String name;
-	
-	/**
-	 * Who has damaged the boss and how much
-	 */
-	private Map<UUID, Double> damageMap;
-	
-	/**
-	 * Is the boss alive, or dying?
-	 */
-	private boolean alive;
-	
-	/**
-	 * Whether or not the boss is in dragon form.
-	 */
 	private boolean dragonForm;
 	
-	/**
-	 * What world does this boss belong to?
-	 */
-	private World world;
-	
-	private int level;
+	private int level;						//The level of the boss
+	private LivingEntity boss;				//The actual Entity for the Ender Boss
+	private Map<UUID, Double> damageMap;	//The damage each player has done to the ender boss
+	private String name;
 	
 	
-	public Turkey(int level) {
+	public TurkeyBoss(int level) {
 		this(level, null);
 	}
 	
-	public Turkey(int level, String name) {
-		if (world == null) {
-			EnderDragonFridaysPlugin.plugin.getLogger().info(ChatColor.RED + "INVALID TURKEY CREATION! WORLD"
-					+ " is null!" + ChatColor.RESET);
-			return;
-		}
-		
+	public TurkeyBoss(int level, String name) {
 		if (name == null) {
 			//hard-coded default!
 			name = "Kjilnor the Fierce";
@@ -109,24 +84,19 @@ public class Turkey implements Boss, Listener {
 		 */
 		maxHealth = (int) (Math.log(level)/Math.log(2) + 1) * (25);
 		health = maxHealth;
-
 		
 		damageMap = new HashMap<UUID, Double>();
-		
 	}
 	
 	@Override
 	public void start(Location startingLocation) {
-		dragonForm = true;
-		this.world = startingLocation.getWorld();
+		dragonForm = true;startingLocation.getWorld();
 		
-		org.bukkit.entity.EnderDragon dragon = (EnderDragon) world.spawnEntity(world.getSpawnLocation().add(0, 50, 0), EntityType.ENDER_DRAGON);
+		org.bukkit.entity.EnderDragon dragon = (EnderDragon) boss.getWorld().spawnEntity(boss.getWorld().getSpawnLocation().add(0, 50, 0), EntityType.ENDER_DRAGON);
 		
 		dragon.setMaxHealth(maxHealth);
 		dragon.setHealth(health);
 		dragon.setCustomName(name + " (Lvl. " + level + ")");
-		
-		alive = true;
 		
 		entities = new LinkedList<LivingEntity>();
 		entities.add(dragon);
@@ -140,7 +110,7 @@ public class Turkey implements Boss, Listener {
 		if (e.isCancelled() || entities == null || entities.isEmpty() || e.getCause() == DamageCause.CUSTOM) {
 			return;
 		}
-		if (e.getEntity().getWorld().getName() != world.getName()) {
+		if (e.getEntity().getWorld().getName() != boss.getWorld().getName()) {
 			return;
 		}
 		
@@ -149,7 +119,7 @@ public class Turkey implements Boss, Listener {
 			DamageCause d = e.getCause();
 			if (d == DamageCause.VOID || d == DamageCause.SUFFOCATION) {
 				e.setCancelled(true);
-				e.getEntity().teleport(world.getSpawnLocation().add(0,50,0));
+				e.getEntity().teleport(boss.getWorld().getSpawnLocation().add(0,50,0));
 				return;
 			}
 		}
@@ -195,7 +165,7 @@ public class Turkey implements Boss, Listener {
 				//remove 1 from the boss's health
 				health -= 1;
 				
-				world.playEffect(chicken.getLocation(), Effect.GHAST_SHRIEK, 1007); //play ender effect
+				boss.getWorld().playEffect(chicken.getLocation(), Effect.GHAST_SHRIEK, 1007); //play ender effect
 				player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 300, 1));
 				
 				//regroup every so often back into a dragon. This should happen n times per fight, where
@@ -260,7 +230,7 @@ public class Turkey implements Boss, Listener {
 			loc.add(EnderDragonFridaysPlugin.rand.nextDouble() * 20, 0, EnderDragonFridaysPlugin.rand.nextDouble() * 20);
 			min = new ChickenMinion(this, loc);
 			chickens.add(min);
-			entities.add(min.getChicken());
+			entities.add(min.getEntity());
 		}
 		
 		dragon.remove();
@@ -274,36 +244,27 @@ public class Turkey implements Boss, Listener {
 		chickens.clear();
 		
 
-		org.bukkit.entity.EnderDragon dragon = (EnderDragon) world.spawnEntity(world.getSpawnLocation().add(0, 50, 0), EntityType.ENDER_DRAGON);
+		org.bukkit.entity.EnderDragon dragon = (EnderDragon) boss.getWorld().spawnEntity(boss.getWorld().getSpawnLocation().add(0, 50, 0), EntityType.ENDER_DRAGON);
 		
 		dragon.setMaxHealth(maxHealth);
 		dragon.setHealth(health);
 		dragon.setCustomName(name + " (Lvl. " + level + ")");
 		dragon.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 90000, 1));
 		
-		alive = true;
-		
 		entities = new LinkedList<LivingEntity>();
 		entities.add(dragon);
 		dragonForm = true;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 	@Override
 	public boolean isAlive() {
-		return alive;
+		if (boss == null) {
+			return false;
+		}
+		
+		return (!boss.isDead());
 	}
 
 	@Override
@@ -332,21 +293,18 @@ public class Turkey implements Boss, Listener {
 			
 		}
 		
-		
 		return player;
 	}
 
 	@Override
 	public void win() {
-		if (alive) {
-			kill();
-		}
+		kill();
 	}
 	
 	@Override
 	public void kill() {
-		alive = false;
-
+		boss.remove();
+		
 		if (!entities.isEmpty()) {
 			for (Entity e : entities) {
 				if (!e.isDead()) {
@@ -362,17 +320,12 @@ public class Turkey implements Boss, Listener {
 			chickens.clear();
 		}
 	}
-
-	@Override
-	public List<UUID> getDamageList() {
-		return new LinkedList<UUID>(damageMap.keySet());
-	}
 	
 	/**
 	 * Print out custom message to player letting them know how they did
 	 * @param map
 	 */
-	public void congradulatePlayers(Map<UUID, Double> map) {
+	public void congratulatePlayers(Map<UUID, Double> map) {
 		for (Entry<UUID, Double> entry : map.entrySet()) {
 			
 			Player player = Bukkit.getPlayer(entry.getKey());
@@ -388,26 +341,31 @@ public class Turkey implements Boss, Listener {
 	}
 
 	@Override
+	public List<UUID> getDamageList() {
+		return new ArrayList<UUID>(damageMap.keySet());
+	}
+	
+	@Override
+	public Map<UUID, Double> getDamageMap() {
+		return damageMap;
+	}
+	
+	@Override
 	public double getDamageTaken() {
 		return maxHealth - health;
-	}
-
-	@Override
-	public boolean equals(Boss boss) {
-		return toString().equals(boss.toString());
 	}
 	
 	@Override
 	public String toString() {
 		return "TurkeyBoss[" + name + "]";
 	}
-
-	@Override
-	public Map<UUID, Double> getDamageMap() {
-		return damageMap;
-	}
 	
 	public boolean isDragonForm() {
 		return dragonForm;
+	}
+	
+	@Override
+	public boolean equals(Boss _boss) {
+		return this.boss.getUniqueId().equals(_boss.getEntity().getUniqueId());
 	}
 }
