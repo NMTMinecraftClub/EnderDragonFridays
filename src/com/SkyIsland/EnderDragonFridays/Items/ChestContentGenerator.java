@@ -29,11 +29,11 @@ import com.SkyIsland.EnderDragonFridays.Name.NameGenerator;
 import com.SkyIsland.EnderDragonFridays.Name.SwordNameGenerator;
 
 /**
- * Generates a chest-ful of equipment for players!<br />
+ * Generates a chest-full of equipment for players!<br />
  * Takes a mapping of players to their contribution and generates loot. The results are returned
  * as a map between players and chests.<br />The chest the players are mapped to contain the loot
  * generated for that player.
- * @author Skyler
+ * @author Skyler, James Pelster
  * @note This should be abstracted out when converting to a framework. Let people make their own ChestGenerators that don't,<br />
  * for example, exclude 0% contribution
  */
@@ -92,7 +92,7 @@ public class ChestContentGenerator {
 				ItemStack item;
 				item = gen.generateItem(  inputMap.get(uuid)  );
 				
-				//record generated item incase of accidents
+				//record generated item in case of accidents
 				backup.set(Bukkit.getPlayer(uuid).getName() + uuid + ".item1", item);
 				chest.addItem(item); //generate item. Use the double passed with player as weight
 				

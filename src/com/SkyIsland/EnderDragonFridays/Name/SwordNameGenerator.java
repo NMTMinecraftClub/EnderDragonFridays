@@ -63,6 +63,8 @@ public class SwordNameGenerator implements NameGenerator {
 		lastNames.add("Dirk");
 		lastNames.add("Dagger");
 		lastNames.add("Knife");
+		lastNames.add("Shank");
+		lastNames.add("Stabby-thing");
 		lastNames.add("Claymore");
 		lastNames.add("Rapier");
 		lastNames.add("Longsword");

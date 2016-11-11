@@ -19,7 +19,7 @@ public class LootEnchantment {
 	private double weight;
 	
 	/**
-	 * What enchantment this lootenchantment carries. This is an enchantment enumerated in
+	 * What enchantment this loot enchantment carries. This is an enchantment enumerated in
 	 * {@link org.bukkit.enchantments.Enchantment}
 	 */
 	private Enchantment enchantment;
@@ -45,7 +45,7 @@ public class LootEnchantment {
 	 * @return
 	 */
 	public int calculateLevelCap(double quality) {
-		//default follows the algo that Skyler created: the cap is (2 * quality) - enchantment.weight rounded down
+		//default follows the algorithm that Skyler created: the cap is (2 * quality) - enchantment.weight rounded down
 		int cap;
 		cap = (int) Math.floor((2 * quality) - weight);
 		
@@ -64,7 +64,7 @@ public class LootEnchantment {
 	 * @return
 	 */
 	public int getEnchantmentLevel(double quality, double enchantingPoints) {
-		int level = 0, cap;
+		int level, cap;
 		cap = calculateLevelCap(quality);
 		
 		level = (int) (enchantingPoints / weight); //how many levels could we get with just our points vs weight?
@@ -74,8 +74,8 @@ public class LootEnchantment {
 			level = cap; //just take out max
 		}
 		
-		if (level < 0) {
-			level = 0;
+		if (level < 1) {
+			level = 1;
 		}
 		
 		return level;		

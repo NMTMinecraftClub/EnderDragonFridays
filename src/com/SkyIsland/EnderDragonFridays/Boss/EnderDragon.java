@@ -1,6 +1,5 @@
 package com.SkyIsland.EnderDragonFridays.Boss;
 
-
 import java.util.HashMap;
 import java.util.UUID;
 

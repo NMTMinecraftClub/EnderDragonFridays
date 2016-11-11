@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Generates a list of random names for the Wither boss.
+ * 
+ * @author Skyler Manzanares, James Pelster
+ */
 public class WitherNameGenerator implements NameGenerator {
 
 	private Random rand;
@@ -49,13 +54,26 @@ public class WitherNameGenerator implements NameGenerator {
 	 */
 	private void setupFirst() {
 		firstNames.add("Abbadon");
+		firstNames.add("Gelnoth");
+		firstNames.add("Blitzkreig");
+		firstNames.add("Nox Dessius");
+		firstNames.add("Darth Mwothzxyz");
+		firstNames.add("Walt");
+		firstNames.add("Memelord");
 	}
 	
 	/**
 	 * Add all our last names to a list
 	 */
 	private void setupLast() {
-		lastNames.add("the Corrupted");
+		lastNames.add("The Corrupted");
+		lastNames.add("The Anihilator");
+		lastNames.add("The Ultimate");
+		lastNames.add("The Wither");
+		lastNames.add("The Terrible");
+		lastNames.add("The Really, Really Bad");
+		lastNames.add("The Dark");
+		lastNames.add("The Dank");
 	}
 
 }

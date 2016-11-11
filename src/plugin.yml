@@ -1,6 +1,6 @@
 name: EnderDragonFridays
 main: com.SkyIsland.EnderDragonFridays.EnderDragonFridaysPlugin
-version: 0.1
+version: 0.2
 softdepend: [LWCPlugin] 
 permissions:
     enderdragonfridays.*:

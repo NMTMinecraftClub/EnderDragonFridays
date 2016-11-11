@@ -18,7 +18,7 @@ public class MegaDragon extends Dragon {
 	private String name;
 	
 	/**
-	 * Creates a default mega dragon
+	 * Creates a default mega enderdragon
 	 * @param plugin The EnderDragonFridays plugin this dragon is associated with
 	 * @param level The level of the dragon
 	 * @param loc
