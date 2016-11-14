@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.ArrayList;
 
-public class ItemNameGenerator implements NameGenerator {
+public class ToolNameGenerator implements NameGenerator {
 	
 	private Random rand;
 	private List<String> firstNames; 
 	private List<String> lastNames;
 	
-	public ItemNameGenerator() {
+	public ToolNameGenerator() {
 		this.rand = new Random();
 		this.firstNames = new ArrayList<String>();
 		this.lastNames = new ArrayList<String>();
@@ -60,6 +60,16 @@ public class ItemNameGenerator implements NameGenerator {
 		firstNames.add("Magma");
 		firstNames.add("Digital");
 		firstNames.add("Analog");
+		firstNames.add("Fraudulent");
+		firstNames.add("Gooey");
+		firstNames.add("Not as good as the other guy's");
+		firstNames.add("Your");
+		firstNames.add("Malfunctioning");
+		firstNames.add("I.O.U. one");
+		firstNames.add("Universal");
+		firstNames.add("Happy");
+		firstNames.add("Questionably Legal");
+		firstNames.add("VERY Illegal");
 	}
 	
 	private void setupLast() {
@@ -86,5 +96,7 @@ public class ItemNameGenerator implements NameGenerator {
 		lastNames.add("Bukkit");
 		lastNames.add("Gameboy");
 		lastNames.add("SD Card");
+		lastNames.add("Doom");
+		lastNames.add("Doomsday Device");
 	}
 }

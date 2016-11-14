@@ -11,18 +11,18 @@ import org.bukkit.enchantments.Enchantment;
 public class LootEnchantment {
 	
 	/**
+	 * What enchantment this loot enchantment carries. This is an enchantment enumerated in
+	 * {@link org.bukkit.enchantments.Enchantment}
+	 */
+	private Enchantment enchantment;
+	
+	/**
 	 * The weight of the enchantment. In other words, how <i>heavy</i> is this enchantment? That was a pun.
 	 * <p>The weight of an enchantment affects how much a level of this enchantment costs for a piece of loot.
 	 * <br />Enchantments with more weight have less chance of getting on an item and a significantly reduced
 	 * final enchantment level.</p>
 	 */
 	private double weight;
-	
-	/**
-	 * What enchantment this lootenchantment carries. This is an enchantment enumerated in
-	 * {@link org.bukkit.enchantments.Enchantment}
-	 */
-	private Enchantment enchantment;
 	
 	/**
 	 * A hard level cap. This is the final word on how high an enchantment's level can go. For example, it makes
@@ -32,7 +32,17 @@ public class LootEnchantment {
 	private int hardLevelCap;
 	
 	
-
+	/**
+	 * @param enchantment What enchantment this loot enchantment carries. This is an enchantment enumerated in
+	 * {@link org.bukkit.enchantments.Enchantment}<p />
+	 * @param weight The weight of the enchantment. In other words, how <i>heavy</i> is this enchantment? That was a pun.
+	 * The weight of an enchantment affects how much a level of this enchantment costs for a piece of loot.
+	 * Enchantments with more weight have less chance of getting on an item and a significantly reduced
+	 * final enchantment level.<p />
+	 * @param cap A hard level cap. This is the final word on how high an enchantment's level can go. For example, it makes
+	 * sense to have a hard level cap of 1 on Infinity. We don't want to cap Sharpness to V, however, as sharpness
+	 * VI+ actually mean something. Infinity II does not. This also prevents Protection 80. 
+	 */
 	public LootEnchantment(Enchantment enchantment,  Double weight, int cap) {
 		this.enchantment = enchantment;
 		this.weight = weight;
@@ -45,7 +55,7 @@ public class LootEnchantment {
 	 * @return
 	 */
 	public int calculateLevelCap(double quality) {
-		//default follows the algo that Skyler created: the cap is (2 * quality) - enchantment.weight rounded down
+		//default follows the algorithm that Skyler created: the cap is (2 * quality) - enchantment.weight rounded down
 		int cap;
 		cap = (int) Math.floor((2 * quality) - weight);
 		
@@ -64,7 +74,7 @@ public class LootEnchantment {
 	 * @return
 	 */
 	public int getEnchantmentLevel(double quality, double enchantingPoints) {
-		int level = 0, cap;
+		int level, cap;
 		cap = calculateLevelCap(quality);
 		
 		level = (int) (enchantingPoints / weight); //how many levels could we get with just our points vs weight?
@@ -74,8 +84,8 @@ public class LootEnchantment {
 			level = cap; //just take out max
 		}
 		
-		if (level < 0) {
-			level = 0;
+		if (level < 1) {
+			level = 1;
 		}
 		
 		return level;		

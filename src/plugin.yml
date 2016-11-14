@@ -1,6 +1,6 @@
 name: EnderDragonFridays
 main: com.SkyIsland.EnderDragonFridays.EnderDragonFridaysPlugin
-version: 0.1
+version: 0.3
 softdepend: [LWCPlugin] 
 permissions:
     enderdragonfridays.*:
@@ -24,6 +24,8 @@ permissions:
         default: op
     enderdragonfridays.stopdragonfight:
         deafult: op
+    enderdragonfridays.gentestloot:
+        default: op
 commands:
     killalldragons:
         description: Kills all ender dragons in the world
@@ -37,4 +39,8 @@ commands:
     setcontribution:
         permission: enderdragonfridays.setcontribution
         usage: /setcontribution contribution
+    gentestloot:
+        description: Generate a test loot chest
+        usage: /gentestloot
+        permission: enderdragonfridays.gentestloot
     

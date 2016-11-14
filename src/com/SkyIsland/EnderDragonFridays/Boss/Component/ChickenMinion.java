@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.entity.Chicken;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
@@ -40,7 +39,7 @@ public class ChickenMinion implements Listener {
 		
 		public FallDetector(Chicken chicken) {
 			this.chicken = chicken;
-			System.out.println("Creating FAll Detector!");
+			System.out.println("Creating Fall Detector!");
 		}
 		
 		@Override
@@ -54,11 +53,10 @@ public class ChickenMinion implements Listener {
 				chicken = null;
 			}
 		}
-	
 	}
 	
-	public ChickenMinion(Boss boss, Location loc) {
-		this.boss = boss;
+	public ChickenMinion(Boss _boss, Location loc) {
+		this.boss = _boss;
 		this.falling = true;
 		chicken = (Chicken) loc.getWorld().spawnEntity(loc, EntityType.CHICKEN);
 		chicken.setRemoveWhenFarAway(false);
@@ -67,7 +65,6 @@ public class ChickenMinion implements Listener {
 		
 		fallDetector = new FallDetector(chicken);
 		fallDetector.runTaskTimer(EnderDragonFridaysPlugin.plugin, 10, 10);
-		
 	}
 	
 	private void mount() {
@@ -84,8 +81,6 @@ public class ChickenMinion implements Listener {
 		List<Player> players = chicken.getWorld().getPlayers();
 		vehicle.setTarget(players.get(EnderDragonFridaysPlugin.rand.nextInt(players.size())));
 		//lulz attack a random player in the world
-		
-		
 	}
 	
 	@EventHandler
@@ -157,10 +152,12 @@ public class ChickenMinion implements Listener {
 		}
 	}
 	
-	
-	
-	public Chicken getChicken() {
+	public Chicken getEntity() {
 		return this.chicken;
+	}
+	
+	public Boss getBoss() {
+		return this.boss;
 	}
 	
 	public void kill() {
@@ -171,6 +168,10 @@ public class ChickenMinion implements Listener {
 		if (vehicle != null && !vehicle.isDead()) {
 			vehicle.remove();
 		}
+	}
+	
+	public boolean equals(ChickenMinion _chicken) {
+		return this.chicken.getUniqueId().equals(_chicken.getEntity().getUniqueId());
 	}
 
 }

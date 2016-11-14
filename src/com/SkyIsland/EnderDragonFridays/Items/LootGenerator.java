@@ -5,10 +5,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.block.Banner;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 
 import com.SkyIsland.EnderDragonFridays.Name.DefaultNames;
 import com.SkyIsland.EnderDragonFridays.Name.NameGenerator;
@@ -31,6 +36,8 @@ public class LootGenerator {
 	
 	private NameGenerator armorNameGen;
 	
+	private NameGenerator shieldNameGen;
+	
 	private NameGenerator toolNameGen;
 	
 	private Random rand;
@@ -41,7 +48,11 @@ public class LootGenerator {
 	
 	private List<LootEnchantment> armorEnchantments;
 	
+	private List<LootEnchantment> shieldEnchantments;
+	
 	private List<LootEnchantment> toolEnchantments;
+	
+	
 	
 	/**
 	 * Creates a loot generator with the passed rarity.<br />
@@ -62,12 +73,13 @@ public class LootGenerator {
 		loadEnchantments();
 	}
 	
-	public LootGenerator(double rarity, NameGenerator SwordNameGenerator, NameGenerator BowNameGenerator, NameGenerator ArmorNameGenerator, NameGenerator ToolNameGenerator) {
+	public LootGenerator(double rarity, NameGenerator swordNameGenerator, NameGenerator bowNameGenerator, NameGenerator armorNameGenerator, NameGenerator shieldNameGenerator, NameGenerator toolNameGenerator) {
 		this.rarity = rarity;
-		this.swordNameGen = SwordNameGenerator;
-		this.bowNameGen = BowNameGenerator;
-		this.toolNameGen = ToolNameGenerator;
-		this.armorNameGen = ArmorNameGenerator;
+		this.swordNameGen = swordNameGenerator;
+		this.bowNameGen = bowNameGenerator;
+		this.armorNameGen = armorNameGenerator;
+		this.shieldNameGen = shieldNameGenerator;
+		this.toolNameGen = toolNameGenerator;
 		
 		if (this.swordNameGen == null || this.bowNameGen == null || this.toolNameGen == null || this.armorNameGen == null) {
 			names = DefaultNames.generate();
@@ -76,6 +88,8 @@ public class LootGenerator {
 		loadEnchantments();
 	}
 	
+	
+	
 	/**
 	 * Goes through and loads up the enchantments in their respective lists.
 	 */
@@ -83,6 +97,7 @@ public class LootGenerator {
 		loadSwordEnchantments();
 		loadBowEnchantments();
 		loadArmorEnchantments();
+		loadShieldEnchantments();
 		loadToolEnchantments();
 	}
 	
@@ -105,14 +120,6 @@ public class LootGenerator {
 		bowEnchantments.add(new LootEnchantment(Enchantment.DURABILITY, 3.5, 4));
 	}
 	
-	private void loadToolEnchantments() {
-		toolEnchantments = new ArrayList<LootEnchantment>();
-		toolEnchantments.add(new LootEnchantment(Enchantment.DIG_SPEED, 2.5, 8));
-		toolEnchantments.add(new LootEnchantment(Enchantment.DURABILITY, 3.0, 4));
-		toolEnchantments.add(new LootEnchantment(Enchantment.LOOT_BONUS_BLOCKS, 7.0, 4));
-		toolEnchantments.add(new LootEnchantment(Enchantment.SILK_TOUCH, 10.0, 1));
-	}
-	
 	private void loadArmorEnchantments() {
 		armorEnchantments = new ArrayList<LootEnchantment>();
 		armorEnchantments.add(new LootEnchantment(Enchantment.DURABILITY, 4.0, 3));
@@ -124,6 +131,21 @@ public class LootGenerator {
 		armorEnchantments.add(new LootEnchantment(Enchantment.PROTECTION_FALL, 3.5, 5));
 		armorEnchantments.add(new LootEnchantment(Enchantment.THORNS, 2.5, 5));
 		armorEnchantments.add(new LootEnchantment(Enchantment.WATER_WORKER, 2.0, 3));
+		armorEnchantments.add(new LootEnchantment(Enchantment.MENDING, 15.0, 1));
+	}
+	
+	private void loadShieldEnchantments() {
+		shieldEnchantments = new ArrayList<LootEnchantment>();
+		shieldEnchantments.add(new LootEnchantment(Enchantment.DURABILITY, 5.0, 3));
+		shieldEnchantments.add(new LootEnchantment(Enchantment.MENDING, 15.0, 1));
+	}
+	
+	private void loadToolEnchantments() {
+		toolEnchantments = new ArrayList<LootEnchantment>();
+		toolEnchantments.add(new LootEnchantment(Enchantment.DIG_SPEED, 2.5, 8));
+		toolEnchantments.add(new LootEnchantment(Enchantment.DURABILITY, 3.0, 4));
+		toolEnchantments.add(new LootEnchantment(Enchantment.LOOT_BONUS_BLOCKS, 7.0, 4));
+		toolEnchantments.add(new LootEnchantment(Enchantment.SILK_TOUCH, 10.0, 1));
 	}
 	
 
@@ -159,7 +181,7 @@ public class LootGenerator {
 		double quality = itemQuality(rarity, weight * 30); //added * 30 because of the ago. It takes a weight from
 														   //0 to 30 instead of 0 to 1s?
 		System.out.println("Quality: " + quality);
-		switch (rand.nextInt(6)) {
+		switch (rand.nextInt(8)) {
 		case 0: 
 			item = generateBow(); 
 			enchant(bowEnchantments, item, quality);
@@ -175,6 +197,11 @@ public class LootGenerator {
 		break;
 		case 4:
 		case 5:
+			item = generateShield(quality); 
+			enchant(shieldEnchantments, item, quality);
+		break;
+		case 6:
+		case 7:
 			item = generateTool(quality); 
 			enchant(toolEnchantments, item, quality);
 		break;
@@ -184,58 +211,52 @@ public class LootGenerator {
 	}
 	
 	/**
-	 * This method generates a random tool (being an Axe, Shovel, or Pickaxe).
-	 * <p>The material of the generated tool is dependent on how rare the boss was and how much the player contributed<p>
-	 * @param rarity The rarity of the boss (for ideal properties use 10 as the maximum)
-	 * @param weight How much the player contributed to the boss fight (for ideal properties use 0 as no contribution and 30 as 100% contribution)
-	 * @return Returns a generated tool
-	 */
-	private ItemStack generateTool(double quality) {
-		ItemStack tool;
-		String name;
-		
-		switch (rand.nextInt(3)) {
-		case 0:
-			if (quality < 2)
-				tool = new ItemStack(Material.STONE_AXE);
-			else if (quality < 3)
-				tool = new ItemStack(Material.IRON_AXE);
-			else
-				tool = new ItemStack(Material.DIAMOND_AXE);
-			break;
-		case 1:
-			if (quality < 2)
-				tool = new ItemStack(Material.STONE_SPADE);
-			else if (quality < 3)
-				tool = new ItemStack(Material.IRON_SPADE);
-			else
-				tool = new ItemStack(Material.DIAMOND_SPADE);
-			break;
-		case 2:
-		default:
-			if (quality < 2)
-				tool = new ItemStack(Material.STONE_PICKAXE);
-			else if (quality < 3)
-				tool = new ItemStack(Material.IRON_PICKAXE);
-			else
-				tool = new ItemStack(Material.DIAMOND_PICKAXE);
-		}
-		
-		name = getToolName();
-		
-		ItemMeta meta = tool.getItemMeta();
-		meta.setDisplayName(name);
-		tool.setItemMeta(meta);
-		
-		return tool;
-	}
-	
-	/**
-	 * This method generates a random armor item (being a helment, chestplate, leggings, or boots)
+	 * This method generates a random sword
 	 * <p>The material of the generated armor is dependent on how rare the boss was and how much the player contributed</p>
 	 * @param rarity The rarity of the boss (for ideal properties use 10 as the maximum)
 	 * @param weight How much the player contributed to the boss fight (for ideal properties use 0 as no contribution and 30 as 100% contribution)
-	 * @return Returns a generated armor item
+	 * @return The generated sword
+	 */
+	private ItemStack generateSword(double quality) {
+		String name;
+		ItemStack sword;
+		name = getSwordName();
+		if (quality < 2)
+			sword =  new ItemStack(Material.STONE_SWORD);
+		else if (quality < 3)
+			sword =  new ItemStack(Material.IRON_SWORD);
+		else
+			sword = new ItemStack(Material.DIAMOND_SWORD);
+		
+		//set sword name
+		ItemMeta meta = sword.getItemMeta();
+		meta.setDisplayName(name);
+		sword.setItemMeta(meta);
+		
+		return sword;
+	}
+	
+	/**
+	 * Generates a bow. Needs no parameters as there is only one type of bow.
+	 * @return The generated bow.
+	 */
+	private ItemStack generateBow() {
+		ItemStack bow = new ItemStack(Material.BOW);
+		String name;
+		name = getBowName();
+
+		ItemMeta meta = bow.getItemMeta();
+		meta.setDisplayName(name);
+		bow.setItemMeta(meta);
+		return bow;
+	}
+	
+	/**
+	 * This method generates a random armor item (being a helmet, chestplate, leggings, or boots)
+	 * <p>The material of the generated armor is dependent on how rare the boss was and how much the player contributed</p>
+	 * @param rarity The rarity of the boss (for ideal properties use 10 as the maximum)
+	 * @param weight How much the player contributed to the boss fight (for ideal properties use 0 as no contribution and 30 as 100% contribution)
+	 * @return The generated armor item
 	 */
 	private ItemStack generateArmor(double quality) {
 		String name;
@@ -287,44 +308,81 @@ public class LootGenerator {
 	}
 	
 	/**
-	 * This method generates a random sword
-	 * <p>The material of the generated armor is dependent on how rare the boss was and how much the player contributed</p>
+	 * This method generates a random shield
+	 * <p>The fanciness of the generated shield's pattern is dependent on how rare the boss was and how much the player contributed</p>
 	 * @param rarity The rarity of the boss (for ideal properties use 10 as the maximum)
 	 * @param weight How much the player contributed to the boss fight (for ideal properties use 0 as no contribution and 30 as 100% contribution)
-	 * @return Returns a generated sword
+	 * @return The generated shield
 	 */
-	private ItemStack generateSword(double quality) {
+	private ItemStack generateShield(double quality) {
 		String name;
-		ItemStack sword;
-		name = getSwordName();
-		if (quality < 2)
-			sword =  new ItemStack(Material.STONE_SWORD);
-		else if (quality < 3)
-			sword =  new ItemStack(Material.IRON_SWORD);
-		else
-			sword = new ItemStack(Material.DIAMOND_SWORD);
+		ItemStack shield = new ItemStack(Material.SHIELD);
+		BlockStateMeta meta = (BlockStateMeta) shield.getItemMeta();
+		Banner banner = (Banner) meta.getBlockState();
 		
-		//set sword name
-		ItemMeta meta = sword.getItemMeta();
+		banner.setBaseColor(DyeColor.values()[rand.nextInt(DyeColor.values().length)]);
+		
+		for (int p = 0; p < (int) quality * 1.5; p++)
+		{
+			Pattern newPattern = new Pattern(DyeColor.values()[rand.nextInt(DyeColor.values().length)], PatternType.values()[rand.nextInt(PatternType.values().length)]);
+			banner.addPattern(newPattern);
+		}
+		
+		banner.update();
+		meta.setBlockState(banner);
+		
+		name = getShieldName();
 		meta.setDisplayName(name);
-		sword.setItemMeta(meta);
+		shield.setItemMeta(meta);
 		
-		return sword;
+		return shield;
 	}
 	
 	/**
-	 * Generates a bow. Needs no parameters as there is only one type of bow.
-	 * @return A generated bow.
+	 * This method generates a random tool (being an Axe, Shovel, or Pickaxe).
+	 * <p>The material of the generated tool is dependent on how rare the boss was and how much the player contributed<p>
+	 * @param rarity The rarity of the boss (for ideal properties use 10 as the maximum)
+	 * @param weight How much the player contributed to the boss fight (for ideal properties use 0 as no contribution and 30 as 100% contribution)
+	 * @return The generated tool
 	 */
-	private ItemStack generateBow() {
-		ItemStack bow = new ItemStack(Material.BOW);
+	private ItemStack generateTool(double quality) {
+		ItemStack tool;
 		String name;
-		name = getBowName();
-
-		ItemMeta meta = bow.getItemMeta();
+		
+		switch (rand.nextInt(3)) {
+		case 0:
+			if (quality < 2)
+				tool = new ItemStack(Material.STONE_AXE);
+			else if (quality < 3)
+				tool = new ItemStack(Material.IRON_AXE);
+			else
+				tool = new ItemStack(Material.DIAMOND_AXE);
+			break;
+		case 1:
+			if (quality < 2)
+				tool = new ItemStack(Material.STONE_SPADE);
+			else if (quality < 3)
+				tool = new ItemStack(Material.IRON_SPADE);
+			else
+				tool = new ItemStack(Material.DIAMOND_SPADE);
+			break;
+		case 2:
+		default:
+			if (quality < 2)
+				tool = new ItemStack(Material.STONE_PICKAXE);
+			else if (quality < 3)
+				tool = new ItemStack(Material.IRON_PICKAXE);
+			else
+				tool = new ItemStack(Material.DIAMOND_PICKAXE);
+		}
+		
+		name = getToolName();
+		
+		ItemMeta meta = tool.getItemMeta();
 		meta.setDisplayName(name);
-		bow.setItemMeta(meta);
-		return bow;
+		tool.setItemMeta(meta);
+		
+		return tool;
 	}
 	
 	private String getSwordName() {
@@ -351,18 +409,6 @@ public class LootGenerator {
 		return name;
 	}
 	
-	private String getToolName() {
-		String name;
-		if (this.toolNameGen == null) {
-			name = names.get(rand.nextInt(names.size()));
-		}
-		else {
-			name = toolNameGen.getName();
-		}
-		
-		return name;
-	}
-	
 	private String getArmorName() {
 		String name;
 		if (this.armorNameGen == null) {
@@ -370,6 +416,30 @@ public class LootGenerator {
 		}
 		else {
 			name = armorNameGen.getName();
+		}
+		
+		return name;
+	}
+	
+	private String getShieldName() {
+		String name;
+		if (this.shieldNameGen == null) {
+			name = names.get(rand.nextInt(names.size()));
+		}
+		else {
+			name = shieldNameGen.getName();
+		}
+		
+		return name;
+	}
+	
+	private String getToolName() {
+		String name;
+		if (this.toolNameGen == null) {
+			name = names.get(rand.nextInt(names.size()));
+		}
+		else {
+			name = toolNameGen.getName();
 		}
 		
 		return name;

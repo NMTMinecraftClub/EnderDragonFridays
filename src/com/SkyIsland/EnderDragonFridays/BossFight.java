@@ -30,12 +30,12 @@ import com.SkyIsland.EnderDragonFridays.Boss.BossDeathEvent;
 import com.SkyIsland.EnderDragonFridays.Items.ChestContentGenerator;
 
 /**
- * Session for a dragon fight.<br />
- * Holds state and strates session-wide events
+ * Session for a boss fight.<br />
+ * Holds state and states session-wide events
  * @author Skyler
  *
  */
-public class DragonFight implements Listener {
+public class BossFight implements Listener {
 	
 	public enum State {
 		PREFIGHT,
@@ -61,9 +61,9 @@ public class DragonFight implements Listener {
 	
 	private String sessionName;
 	
-	public final static String IDPrefix = "DragonFight#";
+	public final static String IDPrefix = "BossFight#";
 	
-	public DragonFight(String sessionName, World world, Boss boss, double difficulty, double difficultyBase, Location chestLocation) {
+	public BossFight(String sessionName, World world, Boss boss, double difficulty, double difficultyBase, Location chestLocation) {
 		this.sessionName = sessionName;
 		this.boss = boss;
 		this.chestLocation = chestLocation;
@@ -147,7 +147,6 @@ public class DragonFight implements Listener {
 		chestLocation.getBlock().setType(Material.ENDER_CHEST);
 		
 		//save our inventories! #backups
-		
 		YamlConfiguration backupConfig = new YamlConfiguration();
 		ConfigurationSection playSex, invSex;
 		String name;
@@ -167,8 +166,7 @@ public class DragonFight implements Listener {
 				index++;
 			}
 		}
-		File saveFile = new File(EnderDragonFridaysPlugin.plugin.getDataFolder(), 
-				"Save" + getName() + "_" + getID() + ".yml");
+		File saveFile = new File(EnderDragonFridaysPlugin.plugin.getDataFolder(), "Save" + getName() + "_" + getID() + ".yml");
 		if (!saveFile.exists()) {
 			try {
 				saveFile.createNewFile();
@@ -194,6 +192,8 @@ public class DragonFight implements Listener {
 		}
 		
 	}
+	
+	
 	
 	/**
 	 * Print out custom message to player letting them know how they did

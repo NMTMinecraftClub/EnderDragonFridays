@@ -1,16 +1,15 @@
 package com.SkyIsland.EnderDragonFridays.Name;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.ArrayList;
 
-public class ArmorNameGenerator implements NameGenerator {
-
+public class ShieldNameGenerator implements NameGenerator {
 	private Random rand;
 	private List<String> firstNames; 
 	private List<String> lastNames;
 
-	public ArmorNameGenerator() {
+	public ShieldNameGenerator() {
 		this.rand = new Random();
 		this.firstNames = new ArrayList<String>();
 		this.lastNames = new ArrayList<String>();
@@ -75,27 +74,16 @@ public class ArmorNameGenerator implements NameGenerator {
 	}
 	
 	private void setupLast() {
-		lastNames.add("Protector");
-		lastNames.add("Vanguard");
-		lastNames.add("Paragon");
-		lastNames.add("Cocoon");
-		lastNames.add("Jacket");
-		lastNames.add("Palisade");
-		lastNames.add("Hull");
-		lastNames.add("Protection Field V1.02");
-		lastNames.add("Sock");
-		lastNames.add("Pod");
-		lastNames.add("Sheath");
-		lastNames.add("Coating");
-		lastNames.add("Wrapper");
-		lastNames.add("Facing");
-		lastNames.add("Ward");
-		lastNames.add("Bukkit");
-		lastNames.add("Rune");
-		lastNames.add("Armor");
-		lastNames.add("Bracelet");
-		lastNames.add("Underwear");
-		lastNames.add("Shell");
+		lastNames.add("Handheld Protection");
+		lastNames.add("Defender");
+		lastNames.add("Portable Wall");
+		lastNames.add("Buckler");
+		lastNames.add("Targ");
+		lastNames.add("Blocker");
+		lastNames.add("Shield");
+		lastNames.add("Aegis");
+		lastNames.add("Carapace");
+		lastNames.add("Barrier");
+		
 	}
-
 }
