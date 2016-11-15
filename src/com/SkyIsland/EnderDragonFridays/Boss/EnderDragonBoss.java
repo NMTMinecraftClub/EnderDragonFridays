@@ -171,12 +171,12 @@ public class EnderDragonBoss implements Listener, Boss {
 	public void cannonFired(FireFireballEvent event){
 		LivingEntity target = event.getTarget();
 		LivingEntity shooter = event.getShooter();
-		
 		Vector launchV;
 		Location pPos, dPos;
 		dPos = shooter.getEyeLocation();
 		pPos = target.getEyeLocation();
 		launchV = pPos.toVector().subtract(dPos.toVector());
+		//launchV = dPos.toVector().subtract(pPos.toVector());
 		
 		LargeFireball f = shooter.launchProjectile(LargeFireball.class);
 		f.setDirection(launchV.normalize());

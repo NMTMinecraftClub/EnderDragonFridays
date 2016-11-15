@@ -229,11 +229,18 @@ public class EnderDragonFridaysPlugin extends JavaPlugin {
 		
 		Boss boss;
 		if (args[2].equals("mega")) {
+			
 			boss = new MegaDragonBoss(playerCount, bossName.getName());
 		} else if (args[2].equals("halloween")) {
 			boss = new SkeletonBoss(playerCount, bossName.getName());
 		} else if (args[2].equals("thanksgiving")) {
 			boss = new TurkeyBoss(playerCount, bossName.getName());
+		} else if (args[2].equals("double")){
+			Boss bossPartner = new MegaDragonBoss(playerCount/2, bossName.getName() + " Jr",null);
+			boss = new MegaDragonBoss(playerCount, bossName.getName(), bossPartner);
+			((MegaDragonBoss)bossPartner).setPartner(boss);
+			((MegaDragonBoss)boss).setCannon(false);
+			((MegaDragonBoss)bossPartner).setCannon(false);
 		} else {
 			//just do default dragon
 			boss = new EnderDragonBoss(playerCount, bossName.getName());

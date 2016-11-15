@@ -214,7 +214,6 @@ public class FireballCannon extends Cannon {
 				
 		//reschedule this event to run
 		Bukkit.getScheduler().scheduleSyncDelayedTask(EnderDragonFridaysPlugin.plugin, this, time);
-		
 		if (target != null) {
 			//actually launch fireball if we have a target
 			Bukkit.getPluginManager().callEvent(new FireFireballEvent(boss.getEntity(), target, boss.getEntity().getLocation().add(offsetX, offsetY, offsetZ)));

@@ -42,4 +42,5 @@ public interface Boss {
 	public boolean equals(Boss boss);
 	
 	public Map<UUID, Double> getDamageMap();
+
 }
