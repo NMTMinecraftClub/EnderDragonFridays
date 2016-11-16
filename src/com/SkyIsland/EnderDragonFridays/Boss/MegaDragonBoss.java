@@ -174,8 +174,9 @@ public class MegaDragonBoss implements Listener, Boss {
 	/**
 	 * Adds a check to make sure pairs of dragons do not glitch while attempting to roost on the same spot.
 	 * @param event dragon has changed phases
+	 * TODO correctly implement change of phase events
 	 */
-	@EventHandler
+	/*@EventHandler
 	public void onPhaseChange(EnderDragonChangePhaseEvent event){
 		if(this.hasPartner){
 			EnderDragon other = (EnderDragon)this.partner.getEntity();
@@ -193,7 +194,7 @@ public class MegaDragonBoss implements Listener, Boss {
 	 * @param boss the dragon attempting to go to the portal
 	 * @param other the partner to be checked
 	 */
-	private void checkDragonPhase(EnderDragon boss, EnderDragon other){
+	/*private void checkDragonPhase(EnderDragon boss, EnderDragon other){
 		if(other.getPhase() == EnderDragon.Phase.FLY_TO_PORTAL){
 			boss.setPhase(EnderDragon.Phase.CIRCLING);
 		}else if(other.getPhase() == EnderDragon.Phase.HOVER){
@@ -201,7 +202,7 @@ public class MegaDragonBoss implements Listener, Boss {
 		}else if(other.getPhase() == EnderDragon.Phase.LAND_ON_PORTAL){
 			boss.setPhase(EnderDragon.Phase.BREATH_ATTACK);
 		}
-	}
+	}*/
 	
 	@EventHandler
 	public void bossDamage(EntityDamageByEntityEvent event) {
